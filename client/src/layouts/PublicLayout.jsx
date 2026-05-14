@@ -3,16 +3,12 @@ import Footer from "../components/Footer";
 
 export default function PublicLayout({ children }) {
   return (
-    <div className="bg-gray-100 min-h-screen">
-
+    <div className="bg-gray-100 min-h-screen flex flex-col">
       <Navbar />
 
-      <main>
-        {children}
-      </main>
+      <main className="flex-1 w-full flex flex-col">{children}</main>
 
       <Footer />
-
     </div>
   );
 }

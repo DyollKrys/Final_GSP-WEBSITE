@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import AdminLayout from '../../layouts/AdminLayout'
+import { API_BASE_URL } from '../../config/apiBase'
 
 export default function ManageUsers() {
 
@@ -11,20 +12,16 @@ export default function ManageUsers() {
   }, [])
 
   const fetchUsers = async () => {
-    const res = await axios.get(
-      'http://localhost/server/api/users.php'
-    )
+    const res = await axios.get(`${API_BASE_URL}/users.php`)
 
-    setUsers(res.data)
+    setUsers(Array.isArray(res.data) ? res.data : [])
   }
 
   const deleteUser = async (id) => {
 
     if (!window.confirm('Delete this user?')) return
 
-    await axios.delete(
-      `http://localhost/server/api/users.php?id=${id}`
-    )
+    await axios.delete(`${API_BASE_URL}/users.php?id=${id}`)
 
     fetchUsers()
   }

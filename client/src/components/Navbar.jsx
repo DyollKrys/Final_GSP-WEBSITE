@@ -1,49 +1,124 @@
-import { Link } from "react-router-dom";
-import gspLogo from './gsp_logo.jpg';
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import gspLogo from "./gsp_logo.jpg";
+import cartlogo from "./cartlogo.png";
+import { clearAuth, getStoredUser, userHasAdminRole } from "../utils/auth";
+import { cartItemCount, getCart } from "../utils/cart";
 
 export default function Navbar() {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(() => getStoredUser());
+  const [cartCount, setCartCount] = useState(() => cartItemCount(getCart()));
+
+  useEffect(() => {
+    const sync = () => setUser(getStoredUser());
+    window.addEventListener("storage", sync);
+    window.addEventListener("gsp-auth-change", sync);
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener("gsp-auth-change", sync);
+    };
+  }, []);
+
+  useEffect(() => {
+    const syncCart = () => setCartCount(cartItemCount(getCart()));
+    syncCart();
+    window.addEventListener("gsp-cart-change", syncCart);
+    return () => window.removeEventListener("gsp-cart-change", syncCart);
+  }, []);
+
+  const logout = () => {
+    clearAuth();
+    navigate("/", { replace: true });
+  };
+
   return (
     <div className="bg-green-900 text-white shadow-lg">
 
-      <div className="max-w-7xl mx-auto flex justify-between items-center p-5">
-        
-        <div class="logo">
-                <img src={gspLogo} alt="GSP Logo" className="h-12 w-auto rounded-full" />
+      <div className="max-w-7xl mx-auto grid grid-cols-3 items-center gap-4 p-5">
+
+        {/* Left: brand */}
+        <div className="flex items-center justify-start gap-3 min-w-0">
+          <div className="logo shrink-0">
+            <img src={gspLogo} alt="GSP Logo" className="h-12 w-auto rounded-full" />
+          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-left leading-tight">
+            GSP Laoag Council
+          </h1>
         </div>
 
-        <h1 className="text-2xl font-bold">
-          GSP Laoag Council
-        </h1>
-
-        <div className="flex gap-6">
-
+        {/* Center: main nav */}
+        <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-center">
           <Link to="/">Home</Link>
           <Link to="/about">About</Link>
-          <Link to="/programs">Programs</Link>
-          <Link to="/announcements">Announcements</Link>
           <Link to="/publications">Publications</Link>
           <Link to="/forms">Forms</Link>
           <Link to="/shop">Shop</Link>
-          <Link to="/contact">Contact</Link>
+        </nav>
 
-        </div>
-
-        <div className="flex gap-3">
-
+        {/* Right: cart icon + auth */}
+        <div className="flex flex-wrap gap-2 sm:gap-3 justify-end items-center">
           <Link
-            to="/login"
-            className="border border-white px-4 py-2 rounded-xl"
+            to="/cart"
+            className="relative inline-flex items-center justify-center shrink-0 rounded-lg hover:bg-white/10 p-1"
+            aria-label={`Shopping cart${cartCount > 0 ? `, ${cartCount} items` : ""}`}
           >
-            Login
+            <img
+              src={cartlogo}
+              alt=""
+              className="h-8 w-8 object-contain"
+              width={32}
+              height={32}
+            />
+            {cartCount > 0 ? (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[1.125rem] h-[1.125rem] px-1 flex items-center justify-center rounded-full bg-amber-400 text-green-950 text-[10px] font-bold leading-none">
+                {cartCount > 99 ? "99+" : cartCount}
+              </span>
+            ) : null}
           </Link>
 
-          <Link
-            to="/register"
-            className="bg-white text-green-900 px-4 py-2 rounded-xl"
-          >
-            Register
-          </Link>
+          {user ? (
+            <>
+              <Link
+                to="/account"
+                className="text-sm text-white max-w-[min(160px,28vw)] truncate font-medium hover:underline px-1"
+                title={user.email}
+              >
+                {user.fullname || user.email}
+              </Link>
+              {userHasAdminRole(user) ? (
+                <Link
+                  to="/admin/dashboard"
+                  className="text-sm text-white/90 hover:text-white underline underline-offset-2 px-1 shrink-0"
+                >
+                  Admin dashboard
+                </Link>
+              ) : null}
+              <button
+                type="button"
+                onClick={logout}
+                className="border border-white px-4 py-2 rounded-xl hover:bg-white/10 text-sm"
+              >
+                Log out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="border border-white px-4 py-2 rounded-xl hover:bg-white/10 text-sm"
+              >
+                Log in
+              </Link>
 
+              <Link
+                to="/register"
+                className="bg-white text-green-900 px-4 py-2 rounded-xl hover:bg-gray-100 text-sm"
+              >
+                Register
+              </Link>
+            </>
+          )}
         </div>
 
       </div>

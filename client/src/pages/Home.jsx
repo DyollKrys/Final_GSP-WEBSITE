@@ -1,13 +1,9 @@
 import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 import PublicLayout from "../layouts/PublicLayout";
+import { API_BASE_URL } from "../config/apiBase";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-
-const announcements = [
-  { id: 1, title: "Leadership Summit 2025", date: "March 15", description: "Join us for our annual leadership summit" },
-  { id: 2, title: "Community Service Day", date: "March 22", description: "Help us make a difference in our community" },
-  { id: 3, title: "Troop Meeting", date: "March 29", description: "Weekly gathering for all scouts" },
-  { id: 4, title: "Camping Adventure", date: "April 5", description: "Outdoor camping experience for juniors" },
-];
 
 const programs = [
   { id: 1, name: "Brownie Girl Scouts", ageGroup: "4-6 years", image: "/programs/4-6yrs.avif" },
@@ -17,9 +13,24 @@ const programs = [
   { id: 5, name: "Young Adults", ageGroup: "15-21 years", image: "/programs/15-21.avif" },
 ];
 
+/** Split event_date (YYYY-MM-DD) for card header: month name + day (matches old static layout). */
+function announcementDateParts(eventDate) {
+  if (!eventDate) return { top: "—", bottom: "" };
+  const d = new Date(String(eventDate).slice(0, 10) + "T12:00:00");
+  if (Number.isNaN(d.getTime())) return { top: "—", bottom: "" };
+  return {
+    top: d.toLocaleDateString("en-US", { month: "long" }),
+    bottom: d.toLocaleDateString("en-US", { day: "numeric" }),
+  };
+}
+
 export default function Home() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [orderThanks, setOrderThanks] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showAllAnnouncements, setShowAllAnnouncements] = useState(false);
+  const [announcements, setAnnouncements] = useState([]);
 
   const slides = [
     { id: 1, image: "/carousel/1.jpg" },
@@ -28,6 +39,29 @@ export default function Home() {
     { id: 4, image: "/carousel/4.jpg" },
     { id: 5, image: "/carousel/5.avif" },
   ];
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/announcements.php`);
+        const data = Array.isArray(res.data) ? res.data : [];
+        if (!cancelled) setAnnouncements(data);
+      } catch {
+        if (!cancelled) setAnnouncements([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (location.state?.orderPlaced) {
+      setOrderThanks(true);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -41,6 +75,19 @@ export default function Home() {
 
   return (
     <PublicLayout>
+      {orderThanks ? (
+        <div className="bg-green-50 border-b border-green-200 text-green-900 px-4 py-3 text-center text-sm">
+          Thank you! Your shop order was submitted and is{" "}
+          <strong>pending</strong> until the council approves it.
+          <button
+            type="button"
+            className="ml-3 underline font-medium"
+            onClick={() => setOrderThanks(false)}
+          >
+            Dismiss
+          </button>
+        </div>
+      ) : null}
       {/* CAROUSEL HERO */}
       <section className="relative h-96 md:h-screen overflow-hidden bg-black">
         {/* Slides */}
@@ -82,31 +129,42 @@ export default function Home() {
           Announcements
         </h2>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {announcements.slice(0, 4).map((announcement) => (
-            <div key={announcement.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition">
-              <div className="bg-green-900 text-white p-6 text-center">
-                <h3 className="text-2xl font-bold">{announcement.date.split(" ")[0]}</h3>
-                <p className="text-sm">{announcement.date.split(" ")[1]}</p>
-              </div>
-              <div className="p-6">
-                <h4 className="font-bold text-gray-800 mb-2">{announcement.title}</h4>
-                <p className="text-gray-600 text-sm">{announcement.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        {announcements.length === 0 ? (
+          <p className="text-center text-gray-500 mb-12">No announcements yet.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {announcements.slice(0, 4).map((announcement) => {
+              const { top, bottom } = announcementDateParts(announcement.event_date);
+              return (
+                <div
+                  key={announcement.id}
+                  className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition"
+                >
+                  <div className="bg-green-900 text-white p-6 text-center">
+                    <h3 className="text-2xl font-bold">{top}</h3>
+                    <p className="text-sm">{bottom}</p>
+                  </div>
+                  <div className="p-6">
+                    <h4 className="font-bold text-gray-800 mb-2">{announcement.title}</h4>
+                    <p className="text-gray-600 text-sm">{announcement.content}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* View All Button */}
-        <div className="flex justify-center">
-          <button
-            onClick={() => setShowAllAnnouncements(true)}
-            className="bg-green-900 hover:bg-green-800 text-white px-12 py-3 rounded-full text-lg font-semibold transition"
-          >
-            View All
-          </button>
-        </div>
+        {announcements.length > 0 && (
+          <div className="flex justify-center">
+            <button
+              onClick={() => setShowAllAnnouncements(true)}
+              className="bg-green-900 hover:bg-green-800 text-white px-12 py-3 rounded-full text-lg font-semibold transition"
+            >
+              View All
+            </button>
+          </div>
+        )}
       </section>
 
       {/* VIEW ALL ANNOUNCEMENTS MODAL */}
@@ -123,20 +181,26 @@ export default function Home() {
             <div className="p-10">
               <h2 className="text-4xl font-bold text-green-900 mb-8">All Announcements</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {announcements.map((announcement) => (
-                  <div key={announcement.id} className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-                    <div className="flex gap-4">
-                      <div className="bg-green-900 text-white rounded-lg p-4 text-center min-w-fit">
-                        <p className="text-2xl font-bold">{announcement.date.split(" ")[0]}</p>
-                        <p className="text-xs">{announcement.date.split(" ")[1]}</p>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-gray-800 mb-2">{announcement.title}</h4>
-                        <p className="text-gray-600">{announcement.description}</p>
+                {announcements.map((announcement) => {
+                  const { top, bottom } = announcementDateParts(announcement.event_date);
+                  return (
+                    <div
+                      key={announcement.id}
+                      className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200"
+                    >
+                      <div className="flex gap-4">
+                        <div className="bg-green-900 text-white rounded-lg p-4 text-center min-w-fit">
+                          <p className="text-2xl font-bold">{top}</p>
+                          <p className="text-xs">{bottom}</p>
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-800 mb-2">{announcement.title}</h4>
+                          <p className="text-gray-600">{announcement.content}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -183,7 +247,7 @@ export default function Home() {
       {/* PROGRAMS SECTION */}
       <section className="max-w-7xl mx-auto px-5 py-20">
         <h3 className="text-4xl font-bold text-green-900 mb-12 text-center">Our Programs</h3>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {programs.map((program) => (
             <div

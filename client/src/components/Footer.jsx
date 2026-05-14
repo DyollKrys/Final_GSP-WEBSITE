@@ -24,14 +24,8 @@ export default function Footer() {
             <a href="/about" className="block hover:underline">
               About
             </a>
-            <a href="/programs" className="block hover:underline">
-              Programs
-            </a>
             <a href="/shop" className="block hover:underline">
               Shop
-            </a>
-            <a href="/contact" className="block hover:underline">
-              Contact
             </a>
           </div>
         </div>

@@ -10,4 +10,34 @@
 
 body {
   background: #f3f4f6;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Typing / selection only in real form fields */
+textarea,
+select,
+input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]):not([type="range"]):not([type="image"]):not([type="hidden"]) {
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
+}
+
+input[type="checkbox"],
+input[type="radio"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+input[type="file"],
+input[type="range"] {
+  cursor: pointer;
+}
+
+a[href] {
+  cursor: pointer;
+}
+
+button:not(:disabled) {
+  cursor: pointer;
 }

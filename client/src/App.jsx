@@ -3,12 +3,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 /* PUBLIC PAGES */
 import Home from "./pages/Home";
 import About from "./pages/About";
-import Programs from "./pages/Programs";
-import Announcements from "./pages/Announcements";
 import Publications from "./pages/Publications";
 import Forms from "./pages/Forms";
-import Contact from "./pages/Contact";
 import Shop from "./pages/Shop";
+import Cart from "./pages/Cart";
+import Account from "./pages/Account";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import TroopRegistration from "./pages/TroopRegistration";
@@ -43,16 +42,6 @@ function App() {
         />
 
         <Route
-          path="/programs"
-          element={<Programs />}
-        />
-
-        <Route
-          path="/announcements"
-          element={<Announcements />}
-        />
-
-        <Route
           path="/publications"
           element={<Publications />}
         />
@@ -63,13 +52,18 @@ function App() {
         />
 
         <Route
-          path="/contact"
-          element={<Contact />}
+          path="/shop"
+          element={<Shop />}
         />
 
         <Route
-          path="/shop"
-          element={<Shop />}
+          path="/cart"
+          element={<Cart />}
+        />
+
+        <Route
+          path="/account"
+          element={<Account />}
         />
 
         <Route

@@ -1,19 +1,20 @@
 <?php
 
-header("Access-Control-Allow-Origin: *");
+require_once __DIR__ . "/../includes/cors.php";
 header("Content-Type: application/json");
 
-include '../config/database.php';
+require_once __DIR__ . "/../config/database.php";
 
-$sql = "SELECT * FROM products";
-$result = $conn->query($sql);
-
-$products = [];
-
-while($row = $result->fetch_assoc()) {
-    $products[] = $row;
+if ($_SERVER["REQUEST_METHOD"] !== "GET") {
+    http_response_code(405);
+    echo json_encode(["message" => "Method not allowed"]);
+    exit;
 }
 
-echo json_encode($products);
-
-?>
+try {
+    $stmt = $conn->query("SELECT * FROM products ORDER BY id DESC");
+    echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode(["message" => "Server error"]);
+}
