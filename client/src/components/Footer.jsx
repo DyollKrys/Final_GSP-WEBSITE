@@ -21,10 +21,18 @@ export default function Footer() {
           </h2>
 
           <div className="space-y-2">
-            <p>About</p>
-            <p>Programs</p>
-            <p>Shop</p>
-            <p>Contact</p>
+            <a href="/about" className="block hover:underline">
+              About
+            </a>
+            <a href="/programs" className="block hover:underline">
+              Programs
+            </a>
+            <a href="/shop" className="block hover:underline">
+              Shop
+            </a>
+            <a href="/contact" className="block hover:underline">
+              Contact
+            </a>
           </div>
         </div>
 
@@ -33,8 +41,9 @@ export default function Footer() {
             Contact
           </h2>
 
+     
           <p>Email: gsp_inlaoag@yahoo.com</p>
-          <p>Laoag City, Philippines</p>
+          <p>Brgy 23 P. Paterno St., Laoag</p>
         </div>
 
       </div>

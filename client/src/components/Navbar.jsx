@@ -1,10 +1,15 @@
 import { Link } from "react-router-dom";
+import gspLogo from './gsp_logo.jpg';
 
 export default function Navbar() {
   return (
     <div className="bg-green-900 text-white shadow-lg">
 
       <div className="max-w-7xl mx-auto flex justify-between items-center p-5">
+        
+        <div class="logo">
+                <img src={gspLogo} alt="GSP Logo" className="h-12 w-auto rounded-full" />
+        </div>
 
         <h1 className="text-2xl font-bold">
           GSP Laoag Council

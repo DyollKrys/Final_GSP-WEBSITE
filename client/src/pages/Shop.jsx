@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import PublicLayout from "../layouts/PublicLayout";
 
+
 export default function Shop() {
   const [products, setProducts] = useState([]);
 
@@ -12,7 +13,7 @@ export default function Shop() {
   const fetchProducts = async () => {
     try {
       const res = await axios.get(
-        "http://localhost/server/api/products.php"
+        "http://localhost/server/api/getProducts.php"
       );
 
       setProducts(res.data);
@@ -73,7 +74,7 @@ export default function Shop() {
               <div className="overflow-hidden">
 
                 <img
-                  src={`http://localhost/server/uploads/${item.image}`}
+                  src={item.image}
                   alt={item.name}
                   className="h-72 w-full object-cover hover:scale-110 transition-all duration-500"
                 />
