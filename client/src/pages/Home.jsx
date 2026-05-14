@@ -246,7 +246,7 @@ export default function Home() {
 
       {/* PROGRAMS SECTION */}
       <section className="max-w-7xl mx-auto px-5 py-20">
-        <h3 className="text-4xl font-bold text-green-900 mb-12 text-center">Our Programs</h3>
+        <h3 className="text-4xl font-bold text-green-900 mb-12 text-center">Age Levels</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {programs.map((program) => (
