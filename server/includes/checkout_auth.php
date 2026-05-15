@@ -1,24 +1,36 @@
 <?php
 
 /**
- * Match logged-in client (user id + base64(email) token from login) to a DB user row.
+ * Resolve the signed-in user from the session token only (base64 email from login).
+ * Never trust a client-supplied user_id — it must not influence authorization.
  */
-function resolveCheckoutUser(PDO $conn, int $userId, $token): ?array
+function resolveUserFromApiToken(PDO $conn, $token): ?array
 {
-    if ($userId <= 0 || !is_string($token) || $token === "") {
+    if (!is_string($token) || $token === "") {
         return null;
     }
     $decoded = base64_decode($token, true);
-    if ($decoded === false || trim($decoded) === "") {
+    if ($decoded === false) {
         return null;
     }
     $email = strtolower(trim($decoded));
+    if ($email === "" || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return null;
+    }
     $stmt = $conn->prepare(
-        "SELECT id, email, fullname FROM users WHERE id = ? AND email = ? LIMIT 1"
+        "SELECT id, email, fullname, role FROM users WHERE email = ? LIMIT 1"
     );
-    $stmt->execute([$userId, $email]);
+    $stmt->execute([$email]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     return $row ?: null;
+}
+
+/**
+ * @deprecated Use resolveUserFromApiToken($conn, $token). user_id is ignored.
+ */
+function resolveCheckoutUser(PDO $conn, int $userId, $token): ?array
+{
+    return resolveUserFromApiToken($conn, $token);
 }
 
 /** Order row for this user, or null if not found / not owned. */

@@ -54,10 +54,14 @@ try {
     }
 
     unset($user["password"]);
+
+    $emailForToken = isset($user["email"]) && is_string($user["email"]) ? $user["email"] : $email;
+    $token = base64_encode((string) $emailForToken);
+
     echo json_encode([
         "message" => "Success",
         "user" => $user,
-        "token" => base64_encode($user["email"]),
+        "token" => $token,
     ]);
 } catch (PDOException $e) {
     http_response_code(500);

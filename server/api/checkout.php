@@ -20,12 +20,11 @@ if (!is_object($data)) {
     exit;
 }
 
-$userId = isset($data->user_id) ? (int) $data->user_id : 0;
 $token = isset($data->token) ? (string) $data->token : "";
 $notes = isset($data->notes) ? trim((string) $data->notes) : "";
 $items = isset($data->items) && is_array($data->items) ? $data->items : [];
 
-$user = resolveCheckoutUser($conn, $userId, $token);
+$user = resolveUserFromApiToken($conn, $token);
 if (!$user) {
     http_response_code(401);
     echo json_encode(["message" => "Sign in required to place an order"]);

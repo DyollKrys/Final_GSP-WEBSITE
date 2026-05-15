@@ -20,6 +20,7 @@ import ManageOrders from "./pages/admin/ManageOrders";
 import ManageRegistrations from "./pages/admin/ManageRegistrations";
 import ManageAnnouncements from "./pages/admin/ManageAnnouncements";
 import ManagePublications from "./pages/admin/ManagePublications";
+import AdminRoute from "./components/AdminRoute";
 
 function App() {
   return (
@@ -89,37 +90,65 @@ function App() {
 
         <Route
           path="/admin/dashboard"
-          element={<Dashboard />}
+          element={
+            <AdminRoute>
+              <Dashboard />
+            </AdminRoute>
+          }
         />
 
         <Route
           path="/admin/users"
-          element={<ManageUsers />}
+          element={
+            <AdminRoute>
+              <ManageUsers />
+            </AdminRoute>
+          }
         />
 
         <Route
           path="/admin/products"
-          element={<ManageProducts />}
+          element={
+            <AdminRoute>
+              <ManageProducts />
+            </AdminRoute>
+          }
         />
 
         <Route
           path="/admin/orders"
-          element={<ManageOrders />}
+          element={
+            <AdminRoute>
+              <ManageOrders />
+            </AdminRoute>
+          }
         />
 
         <Route
           path="/admin/registrations"
-          element={<ManageRegistrations />}
+          element={
+            <AdminRoute>
+              <ManageRegistrations />
+            </AdminRoute>
+          }
         />
 
         <Route
           path="/admin/announcements"
-          element={<ManageAnnouncements />}
+          element={
+            <AdminRoute>
+              <ManageAnnouncements />
+            </AdminRoute>
+          }
         />
 
         <Route
           path="/admin/publications"
-          element={<ManagePublications />}
+          element={
+            <AdminRoute>
+              <ManagePublications />
+            </AdminRoute>
+          }
         />
 
       </Routes>

@@ -18,7 +18,7 @@ function isPending(order) {
   return String(order?.status || "").toLowerCase() === "pending";
 }
 
-function OrderCard({ order, userId, token, onChanged }) {
+function OrderCard({ order, token, onChanged }) {
   const items = Array.isArray(order.items) ? order.items : [];
   const [notes, setNotes] = useState(order.notes ?? "");
   const [lines, setLines] = useState(() =>
@@ -47,7 +47,6 @@ function OrderCard({ order, userId, token, onChanged }) {
     setSaving(true);
     try {
       await axios.post(`${API_BASE_URL}/update_my_order.php`, {
-        user_id: userId,
         token,
         order_id: order.id,
         notes: notes.trim(),
@@ -72,7 +71,6 @@ function OrderCard({ order, userId, token, onChanged }) {
     setDeleting(true);
     try {
       await axios.post(`${API_BASE_URL}/delete_my_order.php`, {
-        user_id: userId,
         token,
         order_id: order.id,
       });
@@ -237,7 +235,6 @@ export default function Account() {
     setError("");
     try {
       const res = await axios.post(`${API_BASE_URL}/my_orders.php`, {
-        user_id: user.id,
         token,
       });
       setOrders(Array.isArray(res.data) ? res.data : []);
@@ -293,7 +290,6 @@ export default function Account() {
               <OrderCard
                 key={`${o.id}-${o.total}-${o.status}`}
                 order={o}
-                userId={user.id}
                 token={token}
                 onChanged={load}
               />

@@ -3,10 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_BASE_URL } from "../config/apiBase";
 import PublicLayout from "../layouts/PublicLayout";
-
-function messageFromAxios(err) {
-  return err?.response?.data?.message || "Something went wrong. Try again.";
-}
+import { httpErrorMessage } from "../utils/httpErrorMessage";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -39,7 +36,7 @@ export default function Register() {
       });
       navigate("/login", { replace: true, state: { registered: true } });
     } catch (err) {
-      setError(messageFromAxios(err));
+      setError(httpErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -52,10 +49,7 @@ export default function Register() {
           onSubmit={submit}
           className="border border-gray-200 bg-white shadow-lg p-10 rounded-2xl w-full max-w-md"
         >
-          <h1 className="text-2xl mb-2 font-bold text-green-900">Create account</h1>
-          <p className="text-sm text-gray-600 mb-6">
-            Your password is stored securely (hashed). Use this account to sign in later.
-          </p>
+          <h1 className="text-2xl mb-6 font-bold text-green-900">Create account</h1>
 
           {error ? (
             <p className="mb-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">

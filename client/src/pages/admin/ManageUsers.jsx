@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import AdminLayout from '../../layouts/AdminLayout'
 import { API_BASE_URL } from '../../config/apiBase'
+import { withAdminAuth } from '../../utils/auth'
 
 export default function ManageUsers() {
 
@@ -12,7 +13,7 @@ export default function ManageUsers() {
   }, [])
 
   const fetchUsers = async () => {
-    const res = await axios.get(`${API_BASE_URL}/users.php`)
+    const res = await axios.get(`${API_BASE_URL}/users.php`, withAdminAuth())
 
     setUsers(Array.isArray(res.data) ? res.data : [])
   }
@@ -21,7 +22,7 @@ export default function ManageUsers() {
 
     if (!window.confirm('Delete this user?')) return
 
-    await axios.delete(`${API_BASE_URL}/users.php?id=${id}`)
+    await axios.delete(`${API_BASE_URL}/users.php?id=${id}`, withAdminAuth())
 
     fetchUsers()
   }

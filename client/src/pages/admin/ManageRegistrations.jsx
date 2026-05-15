@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import AdminLayout from '../../layouts/AdminLayout'
 import { API_BASE_URL } from '../../config/apiBase'
+import { withAdminAuth } from '../../utils/auth'
 
 export default function ManageRegistrations() {
 
@@ -13,7 +14,7 @@ export default function ManageRegistrations() {
 
   const fetchRegistrations = async () => {
 
-    const res = await axios.get(`${API_BASE_URL}/registrations.php`)
+    const res = await axios.get(`${API_BASE_URL}/registrations.php`, withAdminAuth())
 
     setRegistrations(Array.isArray(res.data) ? res.data : [])
   }
@@ -26,7 +27,7 @@ export default function ManageRegistrations() {
       return
     }
     try {
-      await axios.post(`${API_BASE_URL}/approve_registration.php`, { id })
+      await axios.post(`${API_BASE_URL}/approve_registration.php`, { id }, withAdminAuth())
       await fetchRegistrations()
     } catch (err) {
       const d = err.response?.data
@@ -47,7 +48,7 @@ export default function ManageRegistrations() {
       return
     }
     try {
-      await axios.delete(`${API_BASE_URL}/delete_registration.php?id=${id}`)
+      await axios.delete(`${API_BASE_URL}/delete_registration.php?id=${id}`, withAdminAuth())
       await fetchRegistrations()
     } catch (err) {
       const d = err.response?.data

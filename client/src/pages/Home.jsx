@@ -6,11 +6,11 @@ import { API_BASE_URL } from "../config/apiBase";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 const programs = [
-  { id: 1, name: "Brownie Girl Scouts", ageGroup: "4-6 years", image: "/programs/4-6yrs.avif" },
-  { id: 2, name: "Junior Girl Scouts", ageGroup: "6-7 years", image: "/programs/6-7yrs.avif" },
-  { id: 3, name: "Cadette Girl Scouts", ageGroup: "7-9 years", image: "/programs/7-9 yrs.avif" },
-  { id: 4, name: "Senior Girl Scouts", ageGroup: "9-12 years", image: "/programs/9-12yrs.avif" },
-  { id: 5, name: "Young Adults", ageGroup: "15-21 years", image: "/programs/15-21.avif" },
+  { id: 1, name: "Twinkler Scouts", ageGroup: "4-6 years", image: "/programs/4-6yrs.avif" },
+  { id: 2, name: "Star Scouts", ageGroup: "6-7 years", image: "/programs/6-7yrs.avif" },
+  { id: 3, name: "Junior Scouts", ageGroup: "7-9 years", image: "/programs/7-9 yrs.avif" },
+  { id: 4, name: "Senior Scouts", ageGroup: "9-12 years", image: "/programs/9-12yrs.avif" },
+  { id: 5, name: "Cadet Scouts", ageGroup: "15-21 years", image: "/programs/15-21.avif" },
 ];
 
 /** Split event_date (YYYY-MM-DD) for card header: month name + day (matches old static layout). */

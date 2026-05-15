@@ -14,16 +14,35 @@ import { productImageSrc } from "../utils/productImage";
 
 export default function Cart() {
   const navigate = useNavigate();
-  const [lines, setLines] = useState(getCart);
+  const user = getStoredUser();
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+  const [lines, setLines] = useState(() =>
+    user?.id && token ? getCart() : []
+  );
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!user?.id || !token) {
+      navigate("/login", { replace: true, state: { from: "/cart" } });
+    }
+  }, [user?.id, token, navigate]);
+
+  useEffect(() => {
+    if (!user?.id || !token) return;
     const sync = () => setLines(getCart());
+    sync();
     window.addEventListener("gsp-cart-change", sync);
-    return () => window.removeEventListener("gsp-cart-change", sync);
-  }, []);
+    window.addEventListener("gsp-auth-change", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("gsp-cart-change", sync);
+      window.removeEventListener("gsp-auth-change", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, [user?.id, token]);
 
   const subtotal = useMemo(() => {
     return lines.reduce(
@@ -35,10 +54,10 @@ export default function Cart() {
   const checkout = async (e) => {
     e.preventDefault();
     setError("");
-    const user = getStoredUser();
-    const token = localStorage.getItem("token");
-    if (!user?.id || !token) {
-      navigate("/login", { state: { from: "/cart" } });
+    const u = getStoredUser();
+    const t = localStorage.getItem("token");
+    if (!u?.id || !t) {
+      navigate("/login", { replace: true, state: { from: "/cart" } });
       return;
     }
     if (cartItemCount(lines) === 0) {
@@ -48,8 +67,7 @@ export default function Cart() {
     setLoading(true);
     try {
       const payload = {
-        user_id: user.id,
-        token,
+        token: t,
         notes: notes.trim(),
         items: lines.map((l) => ({
           product_id: l.product_id,
@@ -71,6 +89,10 @@ export default function Cart() {
       setLoading(false);
     }
   };
+
+  if (!user?.id || !token) {
+    return null;
+  }
 
   return (
     <PublicLayout>

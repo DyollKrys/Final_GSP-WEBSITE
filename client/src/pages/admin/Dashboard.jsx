@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import AdminLayout from "../../layouts/AdminLayout";
 import { API_BASE_URL } from "../../config/apiBase";
+import { withAdminAuth } from "../../utils/auth";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ export default function Dashboard() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/admin_stats.php`);
+        const res = await axios.get(`${API_BASE_URL}/admin_stats.php`, withAdminAuth());
         if (!cancelled) setStats(res.data);
       } catch {
         if (!cancelled) setStats(null);
@@ -36,10 +37,10 @@ export default function Dashboard() {
       <div className="mb-6">
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/")}
           className="text-sm font-semibold text-green-800 hover:text-green-950 underline underline-offset-2"
         >
-          Go back
+          Back to home
         </button>
       </div>
 

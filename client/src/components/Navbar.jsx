@@ -8,29 +8,40 @@ import { cartItemCount, getCart } from "../utils/cart";
 export default function Navbar() {
   const navigate = useNavigate();
   const [user, setUser] = useState(() => getStoredUser());
-  const [cartCount, setCartCount] = useState(() => cartItemCount(getCart()));
+  const [cartCount, setCartCount] = useState(() => {
+    const u = getStoredUser();
+    const signedIn =
+      Boolean(u?.id && typeof window !== "undefined" && localStorage.getItem("token"));
+    return signedIn ? cartItemCount(getCart()) : 0;
+  });
 
   useEffect(() => {
-    const sync = () => setUser(getStoredUser());
+    const sync = () => {
+      const u = getStoredUser();
+      setUser(u);
+      const signedIn =
+        Boolean(u?.id && typeof window !== "undefined" && localStorage.getItem("token"));
+      setCartCount(signedIn ? cartItemCount(getCart()) : 0);
+    };
+    sync();
     window.addEventListener("storage", sync);
     window.addEventListener("gsp-auth-change", sync);
+    window.addEventListener("gsp-cart-change", sync);
     return () => {
       window.removeEventListener("storage", sync);
       window.removeEventListener("gsp-auth-change", sync);
+      window.removeEventListener("gsp-cart-change", sync);
     };
-  }, []);
-
-  useEffect(() => {
-    const syncCart = () => setCartCount(cartItemCount(getCart()));
-    syncCart();
-    window.addEventListener("gsp-cart-change", syncCart);
-    return () => window.removeEventListener("gsp-cart-change", syncCart);
   }, []);
 
   const logout = () => {
     clearAuth();
     navigate("/", { replace: true });
   };
+
+  const loggedIn = Boolean(
+    user?.id && typeof window !== "undefined" && localStorage.getItem("token")
+  );
 
   return (
     <div className="bg-green-900 text-white shadow-lg">
@@ -40,10 +51,16 @@ export default function Navbar() {
         {/* Left: brand */}
         <div className="flex items-center justify-start gap-3 min-w-0">
           <div className="logo shrink-0">
-            <img src={gspLogo} alt="GSP Logo" className="h-12 w-auto rounded-full" />
+            <Link
+              to="/"
+              className="block rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-green-900"
+              aria-label="Go to home page"
+            >
+              <img src={gspLogo} alt="" className="h-12 w-auto rounded-full" />
+            </Link>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-left leading-tight">
-            GSP Laoag Council
+            GSP Ilocos Norte - Laoag Council
           </h1>
         </div>
 
@@ -59,9 +76,14 @@ export default function Navbar() {
         {/* Right: cart icon + auth */}
         <div className="flex flex-wrap gap-2 sm:gap-3 justify-end items-center">
           <Link
-            to="/cart"
+            to={loggedIn ? "/cart" : "/login"}
+            state={loggedIn ? undefined : { from: "/cart" }}
             className="relative inline-flex items-center justify-center shrink-0 rounded-lg hover:bg-white/10 p-1"
-            aria-label={`Shopping cart${cartCount > 0 ? `, ${cartCount} items` : ""}`}
+            aria-label={
+              loggedIn
+                ? `Shopping cart${cartCount > 0 ? `, ${cartCount} items` : ""}`
+                : "Log in to view your cart"
+            }
           >
             <img
               src={cartlogo}

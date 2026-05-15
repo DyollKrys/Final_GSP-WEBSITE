@@ -45,7 +45,9 @@ if (strlen($password) < 8) {
 $hash = password_hash($password, PASSWORD_DEFAULT);
 
 try {
-    $stmt = $conn->prepare("INSERT INTO users (fullname, email, password) VALUES (?, ?, ?)");
+    $stmt = $conn->prepare(
+        "INSERT INTO users (fullname, email, password, role) VALUES (?, ?, ?, 'member')"
+    );
     $stmt->execute([$fullname, $email, $hash]);
     echo json_encode(["message" => "Registered Successfully"]);
 } catch (PDOException $e) {

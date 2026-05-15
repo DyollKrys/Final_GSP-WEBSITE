@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import PublicLayout from "../layouts/PublicLayout";
 import { API_BASE_URL } from "../config/apiBase";
+import { getStoredUser } from "../utils/auth";
 import { addToCart } from "../utils/cart";
 import { productImageSrc } from "../utils/productImage";
 
 function ProductCard({ item }) {
+  const navigate = useNavigate();
   const [qty, setQty] = useState(1);
   const [flash, setFlash] = useState("");
 
@@ -15,6 +17,11 @@ function ProductCard({ item }) {
 
   const onAdd = () => {
     setFlash("");
+    const u = getStoredUser();
+    if (!u?.id || !localStorage.getItem("token")) {
+      navigate("/login", { state: { from: "/shop" } });
+      return;
+    }
     const res = addToCart(item, qty);
     if (!res.ok) {
       setFlash(res.message || "Could not add");
@@ -92,6 +99,21 @@ function ProductCard({ item }) {
 
 export default function Shop() {
   const [products, setProducts] = useState([]);
+  const [, setAuthTick] = useState(0);
+
+  useEffect(() => {
+    const bump = () => setAuthTick((n) => n + 1);
+    window.addEventListener("gsp-auth-change", bump);
+    window.addEventListener("storage", bump);
+    return () => {
+      window.removeEventListener("gsp-auth-change", bump);
+      window.removeEventListener("storage", bump);
+    };
+  }, []);
+
+  const loggedIn = Boolean(
+    getStoredUser()?.id && typeof window !== "undefined" && localStorage.getItem("token")
+  );
 
   useEffect(() => {
     (async () => {
@@ -120,7 +142,8 @@ export default function Shop() {
               </p>
             </div>
             <Link
-              to="/cart"
+              to={loggedIn ? "/cart" : "/login"}
+              state={loggedIn ? undefined : { from: "/cart" }}
               className="inline-flex items-center bg-white text-green-900 px-6 py-3 rounded-xl font-semibold hover:bg-gray-100"
             >
               View cart

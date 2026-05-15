@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import AdminLayout from '../../layouts/AdminLayout'
 import { API_BASE_URL } from '../../config/apiBase'
+import { withAdminAuth } from '../../utils/auth'
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10)
@@ -46,9 +47,9 @@ export default function ManageAnnouncements() {
         await axios.put(`${API_BASE_URL}/update_announcement.php`, {
           id: editingId,
           ...payload,
-        })
+        }, withAdminAuth())
       } else {
-        await axios.post(`${API_BASE_URL}/add_announcement.php`, payload)
+        await axios.post(`${API_BASE_URL}/add_announcement.php`, payload, withAdminAuth())
       }
       resetForm()
       await fetchAnnouncements()
@@ -78,7 +79,7 @@ export default function ManageAnnouncements() {
 
   const deleteAnnouncement = async (id) => {
     if (!window.confirm('Delete this announcement?')) return
-    await axios.delete(`${API_BASE_URL}/delete_announcement.php?id=${id}`)
+    await axios.delete(`${API_BASE_URL}/delete_announcement.php?id=${id}`, withAdminAuth())
     if (editingId === id) resetForm()
     fetchAnnouncements()
   }

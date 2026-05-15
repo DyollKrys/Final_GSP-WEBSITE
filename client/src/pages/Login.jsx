@@ -4,10 +4,8 @@ import axios from "axios";
 import { API_BASE_URL } from "../config/apiBase";
 import PublicLayout from "../layouts/PublicLayout";
 import { setAuth } from "../utils/auth";
-
-function messageFromAxios(err) {
-  return err?.response?.data?.message || "Something went wrong. Try again.";
-}
+import { mergeGuestCartIntoUserAfterLogin } from "../utils/cart";
+import { httpErrorMessage } from "../utils/httpErrorMessage";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -38,14 +36,37 @@ export default function Login() {
         email: email.trim(),
         password,
       });
-      setAuth(res.data.user, res.data.token);
+      let data = res.data;
+      if (typeof data === "string") {
+        try {
+          data = JSON.parse(data.trim());
+        } catch {
+          setError("Unexpected server response. Try again or contact support.");
+          return;
+        }
+      }
+      const u = data?.user;
+      const tok = data?.token != null ? String(data.token) : "";
+      if (!u || typeof u !== "object" || tok === "") {
+        setError("Unexpected server response. Try again or contact support.");
+        return;
+      }
+      setAuth(u, tok);
+      try {
+        mergeGuestCartIntoUserAfterLogin(u?.id);
+      } catch {
+        /* cart merge must not block sign-in */
+      }
+      const rawFrom = location.state?.from;
       const dest =
-        typeof location.state?.from === "string" && location.state.from.startsWith("/")
-          ? location.state.from
+        typeof rawFrom === "string" &&
+        rawFrom.startsWith("/") &&
+        !rawFrom.startsWith("//")
+          ? rawFrom
           : "/";
       navigate(dest, { replace: true });
     } catch (err) {
-      setError(messageFromAxios(err));
+      setError(httpErrorMessage(err));
     } finally {
       setLoading(false);
     }

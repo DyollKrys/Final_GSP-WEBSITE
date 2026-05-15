@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import AdminLayout from "../../layouts/AdminLayout";
 import { API_BASE_URL, UPLOADS_BASE_URL } from "../../config/apiBase";
+import { withAdminAuth } from "../../utils/auth";
 
 const emptyForm = () => ({
   name: "",
@@ -33,7 +34,7 @@ export default function ManageProducts() {
   }, []);
 
   const fetchProducts = async () => {
-    const res = await axios.get(`${API_BASE_URL}/products.php`);
+    const res = await axios.get(`${API_BASE_URL}/products.php`, withAdminAuth());
     const data = res.data;
     setProducts(Array.isArray(data) ? data : []);
   };
@@ -60,9 +61,9 @@ export default function ManageProducts() {
     try {
       if (editingId != null) {
         fd.append("id", String(editingId));
-        await axios.post(`${API_BASE_URL}/update_product.php`, fd);
+        await axios.post(`${API_BASE_URL}/update_product.php`, fd, withAdminAuth());
       } else {
-        await axios.post(`${API_BASE_URL}/add_product.php`, fd);
+        await axios.post(`${API_BASE_URL}/add_product.php`, fd, withAdminAuth());
       }
       resetForm();
       await fetchProducts();
@@ -89,7 +90,7 @@ export default function ManageProducts() {
   const deleteProduct = async (id) => {
     if (!window.confirm("Delete this product?")) return;
     try {
-      await axios.delete(`${API_BASE_URL}/delete_product.php?id=${id}`);
+      await axios.delete(`${API_BASE_URL}/delete_product.php?id=${id}`, withAdminAuth());
       if (editingId === id) resetForm();
       await fetchProducts();
     } catch (err) {

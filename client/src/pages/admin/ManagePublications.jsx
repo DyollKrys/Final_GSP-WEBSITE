@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import AdminLayout from "../../layouts/AdminLayout";
 import { API_BASE_URL } from "../../config/apiBase";
+import { withAdminAuth } from "../../utils/auth";
 import { publicationCoverSrc, publicationFileHref } from "../../utils/publicationAssets";
 
 function todayISO() {
@@ -61,9 +62,9 @@ export default function ManagePublications() {
     try {
       if (editingId != null) {
         fd.append("id", String(editingId));
-        await axios.post(`${API_BASE_URL}/update_publication.php`, fd);
+        await axios.post(`${API_BASE_URL}/update_publication.php`, fd, withAdminAuth());
       } else {
-        await axios.post(`${API_BASE_URL}/add_publication.php`, fd);
+        await axios.post(`${API_BASE_URL}/add_publication.php`, fd, withAdminAuth());
       }
       resetForm();
       await fetchPublications();
@@ -92,7 +93,7 @@ export default function ManagePublications() {
   const deletePublication = async (id) => {
     if (!window.confirm("Delete this publication?")) return;
     try {
-      await axios.delete(`${API_BASE_URL}/delete_publication.php?id=${id}`);
+      await axios.delete(`${API_BASE_URL}/delete_publication.php?id=${id}`, withAdminAuth());
       if (editingId === id) resetForm();
       await fetchPublications();
     } catch (err) {

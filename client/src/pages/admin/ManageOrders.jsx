@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import AdminLayout from "../../layouts/AdminLayout";
 import { API_BASE_URL } from "../../config/apiBase";
+import { withAdminAuth } from "../../utils/auth";
 
 function fmtDate(iso) {
   if (!iso) return "—";
@@ -29,7 +30,7 @@ export default function ManageOrders() {
   const fetchOrders = useCallback(async () => {
     setError("");
     try {
-      const res = await axios.get(`${API_BASE_URL}/orders.php`);
+      const res = await axios.get(`${API_BASE_URL}/orders.php`, withAdminAuth());
       const data = res.data;
       if (Array.isArray(data)) {
         setOrders(data);
@@ -58,7 +59,7 @@ export default function ManageOrders() {
     if (!window.confirm(`Set order #${id} to "${status}"?`)) return;
     setBusyId(id);
     try {
-      await axios.put(`${API_BASE_URL}/update_order.php`, { id, status });
+      await axios.put(`${API_BASE_URL}/update_order.php`, { id, status }, withAdminAuth());
       await fetchOrders();
     } catch (e) {
       const msg = e?.response?.data?.message || e?.response?.data?.detail || "Update failed.";

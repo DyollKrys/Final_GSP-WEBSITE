@@ -4,6 +4,8 @@ require_once __DIR__ . "/../includes/cors.php";
 header("Content-Type: application/json");
 
 require_once __DIR__ . "/../config/database.php";
+require_once __DIR__ . "/../includes/require_admin.php";
+require_admin_user($conn);
 
 if ($_SERVER["REQUEST_METHOD"] !== "PUT") {
     http_response_code(405);
